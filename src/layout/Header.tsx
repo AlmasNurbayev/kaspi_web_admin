@@ -1,5 +1,4 @@
-import { Button, ButtonGroup, Link, Stack, Typography } from '@mui/material'
-import React from 'react'
+import { Link, Stack, Typography } from '@mui/material'
 
 export default function Header() {
   return (
@@ -20,13 +19,16 @@ export default function Header() {
           <Typography variant="h4">Админ-панель управления Kaspi для Cipo </Typography>
           <Stack direction={'row'} spacing={2} marginTop={1}>
             <Link href="/" underline="none">
-              Главная
+              <Typography>Главная</Typography>
             </Link>
             <Link href="/products" underline="none">
               Товары
             </Link>
             <Link href="/prices" underline="none">
               Прайсы
+            </Link>
+            <Link href="/categories" underline="none">
+              Категории
             </Link>
           </Stack>
         </Stack>

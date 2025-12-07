@@ -1,4 +1,3 @@
-import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
@@ -6,6 +5,8 @@ import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'
 import { BrowserRouter, Routes, Route } from 'react-router'
 import ProductPage from './products/ProductPage.tsx'
 import PricesPage from './prices/PricesPage.tsx'
+import CategoriesPage from './categories/CategoriesPage.tsx'
+import ExportProductPage from './exportProduct/ExportProductPage.tsx'
 
 const theme = createTheme({
   colorSchemes: {
@@ -22,6 +23,8 @@ createRoot(document.getElementById('root')!).render(
         <Route index element={<App />} />
         <Route path="products" element={<ProductPage />} />
         <Route path="prices" element={<PricesPage />} />
+        <Route path="categories" element={<CategoriesPage />} />
+        <Route path="exportProduct/:id" element={<ExportProductPage />} />
       </Routes>
     </ThemeProvider>
   </BrowserRouter>
