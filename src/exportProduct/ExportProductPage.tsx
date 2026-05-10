@@ -162,7 +162,9 @@ export default function ExportProductPage() {
         title: product.name,
         brand: product.name.split(' ')[0],
         category: item.category_name,
-        description: product.description || product.name,
+        description: "Удобная анатомическая и качественная детская обувь Cipo "
+          + product.description + " " + product.name + " из материала вверха: "
+          + product.material_up + " материал подошвы: " + product.material_podoshva,
         familyId: product.artikul,
         attributes: [
           {

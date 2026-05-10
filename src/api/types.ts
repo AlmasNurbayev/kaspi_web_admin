@@ -108,21 +108,7 @@ export type exportProductItemsT = {
 export type exportProductJSON = {
   organization_id: number
   product_ids: number[]
-  data: {
-    sku: string
-    title: string
-    brand: string
-    category: string
-    description: string
-    familyId: string
-    attributes: {
-      code: string
-      value: string | string[]
-    }[]
-    images: {
-      url: string
-    }[]
-  }[]
+  data: exportProductItemsT[]
 }
 
 export type updateCategoryRequest = {
