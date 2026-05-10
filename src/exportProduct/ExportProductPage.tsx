@@ -497,13 +497,17 @@ export default function ExportProductPage() {
                   {' / '}
                   {Math.max(...existsSizes.map((item) => Number(item)))}
                 </Stack>
-                <a href={`${staticURL}/${product.image_active_path}`}>
-                  <img
-                    src={`${staticURL}/${product.image_active_path}`}
-                    alt="product"
-                    style={{ width: '240px', height: '240px' }}
-                  />
-                </a>
+                <Stack direction="row" flexWrap="wrap" gap={2}>
+                  {product.image_registry?.map((image) => (
+                    <a href={`${staticURL}/${image.full_name}`} key={image.id}>
+                      <img
+                        src={`${staticURL}/${image.full_name}`}
+                        alt="product"
+                        style={{ width: '150px', height: '150px', objectFit: 'cover' }}
+                      />
+                    </a>
+                  ))}
+                </Stack>
               </Stack>
 
               <Stack direction={'column'} spacing={2} maxWidth={'60%'}>
@@ -593,6 +597,7 @@ export default function ExportProductPage() {
                               role="checkbox"
                               tabIndex={-1}
                               key={row.size + row.product_id + row.category_name}
+                              sx={row.warn.length > 0 ? { outline: '2px solid red', outlineOffset: '-2px' } : undefined}
                             >
                               {columns.map((column) => {
                                 return (
