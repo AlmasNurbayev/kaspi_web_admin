@@ -11,17 +11,24 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TablePagination,
   Typography
 } from '@mui/material'
 import PublishOutlinedIcon from '@mui/icons-material/PublishOutlined'
 import Header from '../layout/Header'
 import { getProductList } from '../api/api'
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { productItemT, sexLabels } from '../api/types'
 import Footer from '../layout/Footer'
 
 export default function ProductPage() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const take = parseInt(searchParams.get('take') || '20', 10)
+  const skip = parseInt(searchParams.get('skip') || '0', 10)
+
   const [list, setList] = useState<productItemT[]>([])
+  const [fullCount, setFullCount] = useState<number>(0)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false)
@@ -32,13 +39,14 @@ export default function ProductPage() {
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [take, skip])
 
   async function fetchData() {
     setIsLoading(true)
-    const { data, ok, error } = await getProductList()
+    const { data, ok, error } = await getProductList({ take: String(take), skip: String(skip) })
     if (ok && data) {
       setList(data.data)
+      setFullCount(data.full_count)
     } else {
       setTextSnackbar(
         'getProductList received failed ' + (error ? ' with errors: ' + error : '')
@@ -48,6 +56,20 @@ export default function ProductPage() {
       setTimeoutSnackbar(null)
     }
     setIsLoading(false)
+  }
+
+  const handleChangePage = (_event: unknown, newPage: number) => {
+    const newSearchParams = new URLSearchParams(searchParams)
+    newSearchParams.set('skip', String(newPage * take))
+    setSearchParams(newSearchParams)
+  }
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newTake = parseInt(event.target.value, 10)
+    const newSearchParams = new URLSearchParams(searchParams)
+    newSearchParams.set('take', String(newTake))
+    newSearchParams.set('skip', '0')
+    setSearchParams(newSearchParams)
   }
 
   interface Column {
@@ -162,6 +184,16 @@ export default function ProductPage() {
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePagination
+        component="div"
+        count={fullCount}
+        page={Math.floor(skip / take)}
+        onPageChange={handleChangePage}
+        rowsPerPage={take}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        rowsPerPageOptions={[10, 20, 50, 100]}
+        labelRowsPerPage="Строк на странице:"
+      />
 
       <Snackbar
         open={openSnackbar}
