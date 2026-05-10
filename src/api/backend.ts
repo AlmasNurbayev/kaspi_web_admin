@@ -2,6 +2,7 @@ import {
   categoryAddT, categoryItem,
   exportProductJSON,
   exportProductResponse,
+  exportRegistryItemT,
   organizationsListT, productsListT,
   updateCategoryRequest
 } from './types'
@@ -186,6 +187,29 @@ export async function exportProductToKaspi(body: exportProductJSON): Promise<{
       return { response, ok: response.ok, data: dataObj.data, error: null }
     } else {
       return { response, ok: false, error: null }
+    }
+  } catch (error) {
+    return { ok: false, error: String(error) }
+  }
+}
+
+export async function getExportRegistry(productId: string | number): Promise<{
+  response?: Response
+  ok: boolean
+  data?: exportRegistryItemT[]
+  error: string | null
+}> {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL
+  const url = backendUrl + `/api/kaspi/export-registry/${productId}`
+
+  try {
+    const response = await fetch(url, getConfig('GET'))
+    handleUnauthorized(response)
+    if (response.ok) {
+      const data: exportRegistryItemT[] = await response.json()
+      return { response, ok: true, data, error: null }
+    } else {
+      return { response, ok: false, error: await response.text() }
     }
   } catch (error) {
     return { ok: false, error: String(error) }

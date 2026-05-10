@@ -13,12 +13,16 @@ import {
   Snackbar,
   Stack,
   Table,
+  TableRow,
+  TableHead,
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
-  TableRow,
-  Typography
+  Typography,
+  Tabs,
+  Tab,
+  Box,
+  Tooltip
 } from '@mui/material'
 import GirlIcon from '@mui/icons-material/Girl'
 import BoyIcon from '@mui/icons-material/Boy'
@@ -27,10 +31,11 @@ import {
   exportProductItemsT,
   exportProductJSON,
   organizationItemT,
-  productItemT
+  productItemT,
+  exportRegistryItemT
 } from '../api/types'
 import { useEffect, useState } from 'react'
-import { exportProductToKaspi, getCategoryList, getOrganizationList, getProductList } from '../api/backend'
+import { exportProductToKaspi, getCategoryList, getOrganizationList, getProductList, getExportRegistry } from '../api/backend'
 import { useParams } from 'react-router'
 import Header from '../layout/Header'
 import Footer from '../layout/Footer'
@@ -59,6 +64,9 @@ export default function ExportProductPage() {
   const [severitySnackbar, setSeveritySnackbar] = useState<'success' | 'error'>('success')
   const [timeoutSnackbar, setTimeoutSnackbar] = useState<number | null>(2000)
 
+  const [tabIndex, setTabIndex] = useState(0)
+  const [historyData, setHistoryData] = useState<exportRegistryItemT[]>([])
+
   const staticURL = import.meta.env.VITE_STATIC_URL
 
   useEffect(() => {
@@ -73,6 +81,20 @@ export default function ExportProductPage() {
       setExistsSizes(product.qnt_price.map((item) => item.size))
     }
   }, [product])
+
+  useEffect(() => {
+    if (tabIndex === 1 && id) {
+      fetchHistory()
+    }
+  }, [tabIndex, id])
+
+  async function fetchHistory() {
+    if (!id) return
+    const { data, ok } = await getExportRegistry(id)
+    if (ok && data) {
+      setHistoryData(data)
+    }
+  }
 
   const allSizes: string[] = []
   for (let i = 18; i <= 40; i++) {
@@ -481,7 +503,16 @@ export default function ExportProductPage() {
         </>
       ) : (
         <>
-          <Stack sx={{ display: 'flex' }}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+            <Tabs value={tabIndex} onChange={(e, val) => setTabIndex(val)}>
+              <Tab label="Экспорт" />
+              <Tab label="История экспорта" />
+            </Tabs>
+          </Box>
+
+          {tabIndex === 0 && (
+            <>
+              <Stack sx={{ display: 'flex' }}>
             <Stack direction={'row'} spacing={2}>
               <Stack direction={'column'} spacing={1} sx={{ mb: 2 }}>
                 <Typography variant="h5">Основная информация</Typography>
@@ -664,6 +695,51 @@ export default function ExportProductPage() {
           >
             Отправить
           </Button>
+            </>
+          )}
+
+          {tabIndex === 1 && (
+            <TableContainer>
+              <Table stickyHeader size="small" aria-label="history table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>ID</TableCell>
+                    <TableCell>Org ID</TableCell>
+                    <TableCell>Product ID</TableCell>
+                    <TableCell>Категория</TableCell>
+                    <TableCell>Отправленное тело</TableCell>
+                    <TableCell>Статус</TableCell>
+                    <TableCell>Статус Kaspi</TableCell>
+                    <TableCell>Response ID</TableCell>
+                    <TableCell>Дата создания</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {historyData.map((row) => (
+                    <TableRow key={row.id}>
+                      <TableCell>{row.id}</TableCell>
+                      <TableCell>{row.kaspi_organization_id}</TableCell>
+                      <TableCell>{row.product_id}</TableCell>
+                      <TableCell>{row.sended_category}</TableCell>
+                      <TableCell>
+                        <Tooltip title={row.sended_body} placement="top" arrow>
+                          <span style={{ cursor: 'help' }}>
+                            {row.sended_body && row.sended_body.length > 30
+                              ? row.sended_body.slice(0, 30) + '...'
+                              : row.sended_body}
+                          </span>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell>{row.sended_status}</TableCell>
+                      <TableCell>{row.response_status}</TableCell>
+                      <TableCell>{row.response_id}</TableCell>
+                      <TableCell>{new Date(row.create_at).toLocaleString('ru-RU')}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
         </>
       )}
 

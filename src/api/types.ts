@@ -123,3 +123,16 @@ export type exportProductResponse = {
   total: number
   result: { [key: string]: { state: string } }
 }
+
+export type exportRegistryItemT = {
+  id: number
+  kaspi_organization_id: number
+  product_id: number
+  sended_body: string
+  sended_category: string
+  sended_status: number
+  response_id: string | null
+  response_status: string | null
+  create_at: string
+  changed_at: string
+}
