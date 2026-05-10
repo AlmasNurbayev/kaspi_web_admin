@@ -1,5 +1,7 @@
 import {
   categoryAddT, categoryItem,
+  exportProductJSON,
+  exportProductResponse,
   organizationsListT, productsListT,
   updateCategoryRequest
 } from './types'
@@ -160,6 +162,30 @@ export async function updateCategoryFromKaspi(body: updateCategoryRequest): Prom
       return { response, ok: true, error: null }
     } else {
       return { response, ok: false, error: await response.text() }
+    }
+  } catch (error) {
+    return { ok: false, error: String(error) }
+  }
+}
+
+export async function exportProductToKaspi(body: exportProductJSON[]): Promise<{
+  response?: Response
+  ok: boolean
+  data?: exportProductResponse
+  error: string | null
+}> {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL
+  try {
+    const response = await fetch(backendUrl + '/api/products/import', getConfig('POST', body))
+    if (response.status === 400) {
+      return { response, ok: response.ok, error: 'Ошибка загрузки товара' }
+    }
+    let dataObj: { data: exportProductResponse }
+    if (response.ok) {
+      dataObj = await response.json()
+      return { response, ok: response.ok, data: dataObj.data, error: null }
+    } else {
+      return { response, ok: false, error: null }
     }
   } catch (error) {
     return { ok: false, error: String(error) }

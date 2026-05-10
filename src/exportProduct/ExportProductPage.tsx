@@ -29,7 +29,7 @@ import {
   productItemT
 } from '../api/types'
 import { useEffect, useState } from 'react'
-import { getCategoryList, getOrganizationList, getProductList } from '../api/api'
+import { exportProductToKaspi, getCategoryList, getOrganizationList, getProductList } from '../api/backend'
 import { useParams } from 'react-router'
 import Header from '../layout/Header'
 import Footer from '../layout/Footer'
@@ -185,9 +185,23 @@ export default function ExportProductPage() {
         images
       })
     })
-    console.log(fullJSON)
 
-    // TODO - send data to server
+    const { data, ok, error } = await exportProductToKaspi(fullJSON)
+
+    if (ok && !error) {
+      setTextSnackbar('Товар успешно отправлен в Kaspi')
+      setSeveritySnackbar('success')
+      setOpenSnackbar(true)
+    } else {
+      setTextSnackbar(
+        'exportProductToKaspi received failed ' + (error ? ' with errors: ' + error : '')
+      )
+      setSeveritySnackbar('error')
+      setOpenSnackbar(true)
+      setTimeoutSnackbar(null)
+    }
+    // TODO - результаты отправить на бэкенд в регистр экспорта товаров
+    console.log(data)
   }
 
   async function fetchProductData() {

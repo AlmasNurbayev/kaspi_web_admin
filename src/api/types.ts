@@ -109,3 +109,11 @@ export type updateCategoryRequest = {
   id: number
   organization_id: number
 }
+
+export type exportProductResponse = {
+  errors: number
+  warnings: number
+  skipped: number
+  total: number
+  result: { [key: string]: { state: string } }
+}

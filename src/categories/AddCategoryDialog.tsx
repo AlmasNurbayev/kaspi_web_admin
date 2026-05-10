@@ -13,7 +13,7 @@ import {
 } from '@mui/material'
 import { useState } from 'react'
 import { organizationItemT } from '../api/types'
-import { addCategory } from '../api/api'
+import { addCategory } from '../api/backend'
 import SelectOrganizationDialog from '../common/SelectOrganizationDialog'
 
 export default function AddCategoryDialog({

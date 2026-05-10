@@ -16,7 +16,7 @@ import {
 } from '@mui/material'
 import PublishOutlinedIcon from '@mui/icons-material/PublishOutlined'
 import Header from '../layout/Header'
-import { getProductList } from '../api/api'
+import { getProductList } from '../api/backend'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { productItemT, sexLabels } from '../api/types'

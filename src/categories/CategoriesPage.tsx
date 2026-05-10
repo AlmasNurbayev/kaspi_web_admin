@@ -9,7 +9,7 @@ import {
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import Header from '../layout/Header'
-import { getCategoryList, getOrganizationList } from '../api/api'
+import { getCategoryList, getOrganizationList } from '../api/backend'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { categoryItem, organizationItemT } from '../api/types'

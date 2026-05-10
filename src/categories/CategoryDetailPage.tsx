@@ -15,7 +15,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import SyncIcon from '@mui/icons-material/Sync'
 import Header from '../layout/Header'
 import Footer from '../layout/Footer'
-import { getCategoryById, getOrganizationList, updateCategoryFromKaspi } from '../api/api'
+import { getCategoryById, getOrganizationList, updateCategoryFromKaspi } from '../api/backend'
 import { categoryItem, organizationItemT } from '../api/types'
 import SelectOrganizationDialog from '../common/SelectOrganizationDialog'
 
