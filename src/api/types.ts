@@ -104,3 +104,8 @@ export type exportProductJSON = {
     url: string
   }[]
 }
+
+export type updateCategoryRequest = {
+  id: number
+  organization_id: number
+}

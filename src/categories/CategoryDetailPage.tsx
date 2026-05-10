@@ -15,8 +15,9 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import SyncIcon from '@mui/icons-material/Sync'
 import Header from '../layout/Header'
 import Footer from '../layout/Footer'
-import { getCategoryById, updateCategoryFromKaspi } from '../api/api'
-import { categoryItem } from '../api/types'
+import { getCategoryById, getOrganizationList, updateCategoryFromKaspi } from '../api/api'
+import { categoryItem, organizationItemT } from '../api/types'
+import SelectOrganizationDialog from '../common/SelectOrganizationDialog'
 
 function ChipList({ items }: { items: string[] }) {
   if (!items || items.length === 0) return <Typography color="text.secondary">—</Typography>
@@ -32,7 +33,13 @@ function ChipList({ items }: { items: string[] }) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <Box>
-      <Typography variant="caption" color="text.secondary" fontWeight={600} textTransform="uppercase" letterSpacing={0.5}>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        fontWeight={600}
+        textTransform="uppercase"
+        letterSpacing={0.5}
+      >
         {label}
       </Typography>
       <Box mt={0.5}>{children}</Box>
@@ -47,6 +54,9 @@ export default function CategoryDetailPage() {
   const [category, setCategory] = useState<categoryItem | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
+
+  const [organizationList, setOrganizationList] = useState<organizationItemT[]>([])
+  const [showOrgDialog, setShowOrgDialog] = useState(false)
 
   const [openSnackbar, setOpenSnackbar] = useState(false)
   const [textSnackbar, setTextSnackbar] = useState('')
@@ -67,11 +77,19 @@ export default function CategoryDetailPage() {
 
   useEffect(() => {
     fetchCategory()
+    getOrganizationList().then(({ ok, data }) => {
+      if (ok && data) setOrganizationList(data.data)
+    })
   }, [fetchCategory])
 
-  const handleUpdate = async () => {
+  /** Вызывается после выбора организации в диалоге */
+  const handleOrgConfirm = async (org: organizationItemT) => {
+    setShowOrgDialog(false)
     setIsUpdating(true)
-    const { ok, error } = await updateCategoryFromKaspi(categoryId)
+    const { ok, error } = await updateCategoryFromKaspi({
+      id: categoryId,
+      organization_id: org.id
+    })
     if (ok) {
       setTextSnackbar('Категория успешно обновлена из Kaspi')
       setSeveritySnackbar('success')
@@ -111,16 +129,28 @@ export default function CategoryDetailPage() {
       {category && (
         <Stack spacing={3} maxWidth={800}>
           {/* Header row */}
-          <Stack direction="row" justifyContent="space-between" alignItems="flex-start" flexWrap="wrap" gap={2}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="flex-start"
+            flexWrap="wrap"
+            gap={2}
+          >
             <Box>
-              <Typography variant="h5" fontWeight={700}>{category.name_kaspi}</Typography>
-              <Typography variant="body2" color="text.secondary">ID: {category.id}</Typography>
+              <Typography variant="h5" fontWeight={700}>
+                {category.name_kaspi}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                ID: {category.id}
+              </Typography>
             </Box>
             <Button
               id="update-from-kaspi"
               variant="contained"
-              startIcon={isUpdating ? <CircularProgress size={16} color="inherit" /> : <SyncIcon />}
-              onClick={handleUpdate}
+              startIcon={
+                isUpdating ? <CircularProgress size={16} color="inherit" /> : <SyncIcon />
+              }
+              onClick={() => setShowOrgDialog(true)}
               disabled={busy}
             >
               Обновить из Kaspi
@@ -182,12 +212,19 @@ export default function CategoryDetailPage() {
               <Stack spacing={0.5} mt={0.5}>
                 {category.attributes_list.map(attr => (
                   <Stack key={attr.code} direction="row" spacing={1} alignItems="center">
-                    <Typography variant="body2" sx={{ minWidth: 180, fontFamily: 'monospace' }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ minWidth: 180, fontFamily: 'monospace' }}
+                    >
                       {attr.code}
                     </Typography>
                     <Chip label={attr.type} size="small" />
-                    {attr.mandatory && <Chip label="обязательный" size="small" color="warning" />}
-                    {attr.multiValued && <Chip label="мультизначение" size="small" color="info" />}
+                    {attr.mandatory && (
+                      <Chip label="обязательный" size="small" color="warning" />
+                    )}
+                    {attr.multiValued && (
+                      <Chip label="мультизначение" size="small" color="info" />
+                    )}
                   </Stack>
                 ))}
               </Stack>
@@ -209,6 +246,16 @@ export default function CategoryDetailPage() {
           </Stack>
         </Stack>
       )}
+
+      {/* Диалог выбора организации */}
+      <SelectOrganizationDialog
+        open={showOrgDialog}
+        title="Обновить из Kaspi"
+        confirmLabel="Обновить"
+        organizationList={organizationList}
+        onConfirm={handleOrgConfirm}
+        onClose={() => setShowOrgDialog(false)}
+      />
 
       <Snackbar
         open={openSnackbar}

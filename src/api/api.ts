@@ -1,4 +1,8 @@
-import { categoryAddT, categoryItem, organizationsListT, productsListT } from './types'
+import {
+  categoryAddT, categoryItem,
+  organizationsListT, productsListT,
+  updateCategoryRequest
+} from './types'
 
 function getConfig<T = unknown>(method: string, body?: T): RequestInit {
   return {
@@ -142,16 +146,15 @@ export async function getCategoryById(id: number): Promise<{
   }
 }
 
-export async function updateCategoryFromKaspi(id: number): Promise<{
+export async function updateCategoryFromKaspi(body: updateCategoryRequest): Promise<{
   response?: Response
   ok: boolean
   error: string | null
 }> {
   const backendUrl = import.meta.env.VITE_BACKEND_URL
-  const url = backendUrl + `/api/kaspi/category/${id}`
-
+  const url = backendUrl + `/api/kaspi/category/`
   try {
-    const response = await fetch(url, getConfig('PUT'))
+    const response = await fetch(url, getConfig('PUT', body))
     handleUnauthorized(response)
     if (response.ok) {
       return { response, ok: true, error: null }

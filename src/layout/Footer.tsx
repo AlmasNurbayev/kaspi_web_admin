@@ -1,6 +1,14 @@
 import { Stack } from '@mui/material'
-import React from 'react'
+import './Footer.css'
 
 export default function Footer() {
-  return <Stack direction={'row'}>Footer</Stack>
+  return <>
+    <Stack direction={'row'} className="footer" spacing={2}>
+      <Stack >ИП Incore (c) 2026</Stack>
+      <Stack className='footer_second'>v 1.0.1</Stack>
+    </Stack>
+
+  </>
+
+
 }
