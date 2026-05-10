@@ -89,7 +89,7 @@ export const sexLabels: Record<number, string> = {
   3: 'для мальчиков,для девочек'
 }
 
-export type exportProductJSON = {
+export type exportProductItemsT = {
   sku: string
   title: string
   brand: string
@@ -102,6 +102,26 @@ export type exportProductJSON = {
   }[]
   images: {
     url: string
+  }[]
+}
+
+export type exportProductJSON = {
+  organization_id: number
+  product_ids: number[]
+  data: {
+    sku: string
+    title: string
+    brand: string
+    category: string
+    description: string
+    familyId: string
+    attributes: {
+      code: string
+      value: string | string[]
+    }[]
+    images: {
+      url: string
+    }[]
   }[]
 }
 

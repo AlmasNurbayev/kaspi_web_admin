@@ -24,6 +24,7 @@ import GirlIcon from '@mui/icons-material/Girl'
 import BoyIcon from '@mui/icons-material/Boy'
 import {
   categoryItem,
+  exportProductItemsT,
   exportProductJSON,
   organizationItemT,
   productItemT
@@ -103,7 +104,9 @@ export default function ExportProductPage() {
     //setSending(true)
 
     if (!product || selectArray.length === 0) return
-    const fullJSON: exportProductJSON[] = []
+    const fullJSON: exportProductItemsT[] = []
+    const productIdArr: number[] = []
+
     selectArray.forEach((item, index) => {
       if (!item.category_name) {
         setTextSnackbar('Категория не задана дял строки ' + String(index + 1))
@@ -152,12 +155,14 @@ export default function ExportProductPage() {
         return
       }
 
+      productIdArr.push(product.product_id)
+
       fullJSON.push({
-        sku: product.artikul + '-' + item.size,
+        sku: product.artikul + '|' + item.size,
         title: product.name,
         brand: product.name.split(' ')[0],
         category: item.category_name,
-        description: product.description || '',
+        description: product.description || product.name,
         familyId: product.artikul,
         attributes: [
           {
@@ -186,7 +191,22 @@ export default function ExportProductPage() {
       })
     })
 
-    const { data, ok, error } = await exportProductToKaspi(fullJSON)
+    const organization = organizationList.find((org) => org.name === selectedOrganization)
+    if (!organization) {
+      setTextSnackbar('Организация не найдена')
+      setSeveritySnackbar('error')
+      setOpenSnackbar(true)
+      setTimeoutSnackbar(null)
+      return
+    }
+
+    const body: exportProductJSON = {
+      organization_id: organization.id,
+      product_ids: productIdArr,
+      data: fullJSON
+    }
+    console.log(body)
+    const { data, ok, error } = await exportProductToKaspi(body)
 
     if (ok && !error) {
       setTextSnackbar('Товар успешно отправлен в Kaspi')

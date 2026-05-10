@@ -168,7 +168,7 @@ export async function updateCategoryFromKaspi(body: updateCategoryRequest): Prom
   }
 }
 
-export async function exportProductToKaspi(body: exportProductJSON[]): Promise<{
+export async function exportProductToKaspi(body: exportProductJSON): Promise<{
   response?: Response
   ok: boolean
   data?: exportProductResponse
@@ -176,7 +176,7 @@ export async function exportProductToKaspi(body: exportProductJSON[]): Promise<{
 }> {
   const backendUrl = import.meta.env.VITE_BACKEND_URL
   try {
-    const response = await fetch(backendUrl + '/api/products/import', getConfig('POST', body))
+    const response = await fetch(backendUrl + '/api/kaspi/export-products', getConfig('POST', body))
     if (response.status === 400) {
       return { response, ok: response.ok, error: 'Ошибка загрузки товара' }
     }
