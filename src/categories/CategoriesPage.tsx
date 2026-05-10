@@ -11,12 +11,14 @@ import AddIcon from '@mui/icons-material/Add'
 import Header from '../layout/Header'
 import { getCategoryList, getOrganizationList } from '../api/api'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { categoryItem, organizationItemT } from '../api/types'
 import { DataGrid, GridRenderCellParams } from '@mui/x-data-grid'
 import AddCategoryDialog from './AddCategoryDialog'
 import Footer from '../layout/Footer'
 
 export default function CategoriesPage() {
+  const navigate = useNavigate()
   const [list, setList] = useState<categoryItem[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [organizationList, setOrganizationList] = useState<organizationItemT[]>([])
@@ -184,7 +186,13 @@ export default function CategoriesPage() {
           }
         }}
       >
-        <DataGrid rowHeight={45} rows={list} columns={columns} />
+        <DataGrid
+          rowHeight={45}
+          rows={list}
+          columns={columns}
+          onRowClick={params => navigate(`/categories/${params.row.id}`)}
+          sx={{ cursor: 'pointer' }}
+        />
       </Box>
 
       {organizationList.length > 0 && (

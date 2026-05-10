@@ -12,17 +12,23 @@ function getConfig<T = unknown>(method: string, body?: T): RequestInit {
   }
 }
 
+/** При 401 — перенаправляем на страницу входа */
+function handleUnauthorized(response: Response): void {
+  if (response.status === 401) {
+    window.location.href = '/login'
+  }
+}
+
 export async function getCategoryList(): Promise<{
   response?: Response
   ok: boolean
   data?: categoryItem[]
   error: string | null
 }> {
-  // const backendUrl = configStore.getState().backendUrl
   const backendUrl = import.meta.env.VITE_BACKEND_URL
   try {
-    //console.log(backendUrl + '/api/kaspi/category')
-    const response = await fetch(backendUrl + '/api/kaspi/category', getConfig('GET'))
+    const response = await fetch(backendUrl + '/api/kaspi/categories', getConfig('GET'))
+    handleUnauthorized(response)
     let dataObj: { data: categoryItem[] }
     if (response.ok) {
       dataObj = await response.json()
@@ -43,7 +49,6 @@ export async function getProductList(params?: {
   data?: productsListT
   error: string | null
 }> {
-  // const backendUrl = configStore.getState().backendUrl
   const backendUrl = import.meta.env.VITE_BACKEND_URL
   let stringParams = ''
   for (const param in params) {
@@ -55,8 +60,8 @@ export async function getProductList(params?: {
     backendUrl + '/api/kaspi/products/' + (stringParams !== '' ? '?' + stringParams : '')
 
   try {
-    //console.log(backendUrl + '/api/kaspi/category')
     const response = await fetch(url, getConfig('GET'))
+    handleUnauthorized(response)
     let dataObj: productsListT
     if (response.ok) {
       dataObj = await response.json()
@@ -75,13 +80,12 @@ export async function getOrganizationList(): Promise<{
   data?: organizationsListT
   error: string | null
 }> {
-  // const backendUrl = configStore.getState().backendUrl
   const backendUrl = import.meta.env.VITE_BACKEND_URL
   const url = backendUrl + '/api/kaspi/organization/'
 
   try {
-    //console.log(backendUrl + '/api/kaspi/category')
     const response = await fetch(url, getConfig('GET'))
+    handleUnauthorized(response)
     let dataObj: organizationsListT
     if (response.ok) {
       dataObj = await response.json()
@@ -104,8 +108,53 @@ export async function addCategory(body: categoryAddT): Promise<{
 
   try {
     const response = await fetch(url, getConfig('POST', body))
+    handleUnauthorized(response)
     if (response.ok) {
       return { response, ok: response.ok, error: null }
+    } else {
+      return { response, ok: false, error: await response.text() }
+    }
+  } catch (error) {
+    return { ok: false, error: String(error) }
+  }
+}
+
+export async function getCategoryById(id: number): Promise<{
+  response?: Response
+  ok: boolean
+  data?: categoryItem
+  error: string | null
+}> {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL
+  const url = backendUrl + `/api/kaspi/category/${id}`
+
+  try {
+    const response = await fetch(url, getConfig('GET'))
+    handleUnauthorized(response)
+    if (response.ok) {
+      const data: categoryItem = await response.json()
+      return { response, ok: true, data, error: null }
+    } else {
+      return { response, ok: false, error: await response.text() }
+    }
+  } catch (error) {
+    return { ok: false, error: String(error) }
+  }
+}
+
+export async function updateCategoryFromKaspi(id: number): Promise<{
+  response?: Response
+  ok: boolean
+  error: string | null
+}> {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL
+  const url = backendUrl + `/api/kaspi/category/${id}`
+
+  try {
+    const response = await fetch(url, getConfig('PUT'))
+    handleUnauthorized(response)
+    if (response.ok) {
+      return { response, ok: true, error: null }
     } else {
       return { response, ok: false, error: await response.text() }
     }
